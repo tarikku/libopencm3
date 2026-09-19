@@ -44,6 +44,48 @@ uint32_t rcc_ahb_frequency = 2097000;
 uint32_t rcc_apb1_frequency = 2097000;
 uint32_t rcc_apb2_frequency = 2097000;
 
+const struct rcc_clock_scale rcc_hsi_configs[RCC_CLOCK_CONFIG_END]={
+	{ /* 2MHz */
+        .pll_mul = 0,
+        .pll_div = 0,
+        .pll_source = 0,
+        .hpre = RCC_CFGR_HPRE_DIV8,
+        .ppre1 = RCC_CFGR_PPRE1_NODIV,
+        .ppre2 = RCC_CFGR_PPRE2_NODIV,
+        .voltage_scale = PWR_SCALE3,
+        .flash_waitstates = 0,
+        .ahb_frequency = 2000000,
+        .apb1_frequency = 2000000,
+        .apb2_frequency = 2000000,
+	},
+	{ /* 16MHz */
+		.pll_mul = 0,
+		.pll_div = 0,
+		.pll_source = 0,
+		.hpre = RCC_CFGR_HPRE_NODIV,
+		.ppre1 = RCC_CFGR_PPRE1_NODIV,
+		.ppre2 = RCC_CFGR_PPRE2_NODIV,
+		.voltage_scale = PWR_SCALE2,
+		.flash_waitstates = 0,
+		.ahb_frequency = 16000000,
+		.apb1_frequency = 16000000,
+		.apb2_frequency = 16000000,
+	},
+	{ /* 32MHz */
+		.pll_mul = RCC_CFGR_PLLMUL_MUL4,
+        .pll_div = RCC_CFGR_PLLDIV_DIV2,
+        .pll_source = RCC_CFGR_PLLSRC_HSI16_CLK,
+        .flash_waitstates = 1,
+        .voltage_scale = PWR_SCALE1,
+        .hpre = RCC_CFGR_HPRE_NODIV,
+        .ppre1 = RCC_CFGR_PPRE1_NODIV,
+        .ppre2 = RCC_CFGR_PPRE2_NODIV,
+        .ahb_frequency = 32000000,
+        .apb1_frequency = 32000000,
+        .apb2_frequency = 32000000,
+	}
+};
+
 void rcc_osc_on(enum rcc_osc osc)
 {
 	switch (osc) {
@@ -420,8 +462,8 @@ void rcc_set_lptim1_sel(uint32_t lptim1_sel)
  */
 void rcc_set_lpuart1_sel(uint32_t lpuart1_sel)
 {
-	RCC_CCIPR &= ~(RCC_CCIPR_LPUART1SEL_MASK << RCC_CCIPR_LPTIM1SEL_SHIFT);
-	RCC_CCIPR |= (lpuart1_sel << RCC_CCIPR_LPTIM1SEL_SHIFT);
+	RCC_CCIPR &= ~(RCC_CCIPR_LPUARTxSEL_MASK << RCC_CCIPR_LPUART1SEL_SHIFT);
+	RCC_CCIPR |= (lpuart1_sel << RCC_CCIPR_LPUART1SEL_SHIFT);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -431,7 +473,7 @@ void rcc_set_lpuart1_sel(uint32_t lpuart1_sel)
  */
 void rcc_set_usart1_sel(uint32_t usart1_sel)
 {
-	RCC_CCIPR &= ~(RCC_CCIPR_USART1SEL_MASK << RCC_CCIPR_USART1SEL_SHIFT);
+	RCC_CCIPR &= ~(RCC_CCIPR_USARTxSEL_MASK << RCC_CCIPR_USART1SEL_SHIFT);
 	RCC_CCIPR |= (usart1_sel << RCC_CCIPR_USART1SEL_SHIFT);
 }
 
@@ -442,7 +484,7 @@ void rcc_set_usart1_sel(uint32_t usart1_sel)
  */
 void rcc_set_usart2_sel(uint32_t usart2_sel)
 {
-	RCC_CCIPR &= ~(RCC_CCIPR_USART2SEL_MASK << RCC_CCIPR_USART2SEL_SHIFT);
+	RCC_CCIPR &= ~(RCC_CCIPR_USARTxSEL_MASK << RCC_CCIPR_USART2SEL_SHIFT);
 	RCC_CCIPR |= (usart2_sel << RCC_CCIPR_USART2SEL_SHIFT);
 }
 
@@ -464,27 +506,27 @@ void rcc_set_peripheral_clk_sel(uint32_t periph, uint32_t sel)
 
 		case I2C3_BASE:
 			shift = RCC_CCIPR_I2C3SEL_SHIFT;
-			mask = RCC_CCIPR_I2C3SEL_MASK;
+			mask = RCC_CCIPR_I2CxSEL_MASK;
 			break;
 
 		case I2C1_BASE:
 			shift = RCC_CCIPR_I2C1SEL_SHIFT;
-			mask = RCC_CCIPR_I2C1SEL_MASK;
+			mask = RCC_CCIPR_I2CxSEL_MASK;
 			break;
 
 		case LPUART1_BASE:
 			shift = RCC_CCIPR_LPUART1SEL_SHIFT;
-			mask = RCC_CCIPR_LPUART1SEL_MASK;
+			mask = RCC_CCIPR_LPUARTxSEL_MASK;
 			break;
 
 		case USART2_BASE:
 			shift = RCC_CCIPR_USART2SEL_SHIFT;
-			mask = RCC_CCIPR_USART2SEL_MASK;
+			mask = RCC_CCIPR_USARTxSEL_MASK;
 			break;
 
 		case USART1_BASE:
 			shift = RCC_CCIPR_USART1SEL_SHIFT;
-			mask = RCC_CCIPR_USART1SEL_MASK;
+			mask = RCC_CCIPR_USARTxSEL_MASK;
 			break;
 
 		default:
@@ -493,6 +535,83 @@ void rcc_set_peripheral_clk_sel(uint32_t periph, uint32_t sel)
 
 	uint32_t reg32 = RCC_CCIPR & ~(mask << shift);
 	RCC_CCIPR = reg32 | (sel << shift);
+}
+
+
+/* Helper to calculate the frequency of a clksel based clock. */
+static uint32_t rcc_uart_i2c_clksel_freq_hz(uint32_t apb_clk, uint8_t shift) {
+	uint8_t clksel = (RCC_CCIPR >> shift) & RCC_CCIPR_I2CxSEL_MASK;
+	uint8_t hpre = (RCC_CFGR >> RCC_CFGR_HPRE_SHIFT) & RCC_CFGR_HPRE_MASK;
+	switch (clksel) {
+		case RCC_CCIPR_USARTxSEL_PCLK:
+			return apb_clk;
+		case RCC_CCIPR_USARTxSEL_SYSCLK:
+			return rcc_ahb_frequency * rcc_get_div_from_hpre(hpre);
+		case RCC_CCIPR_USARTxSEL_HSI:
+			return 16000000U;
+	}
+	cm3_assert_not_reached();
+}
+
+/*---------------------------------------------------------------------------*/
+/** @brief Get the peripheral clock speed for the USART at base specified.
+ * @param usart  Base address of USART to get clock frequency for.
+ */
+uint32_t rcc_get_usart_clk_freq(uint32_t usart)
+{
+	if (usart == LPUART1_BASE) {
+		return rcc_uart_i2c_clksel_freq_hz(rcc_apb1_frequency, RCC_CCIPR_LPUART1SEL_SHIFT);
+	} else if (usart == USART1_BASE) {
+		return rcc_uart_i2c_clksel_freq_hz(rcc_apb2_frequency, RCC_CCIPR_USART1SEL_SHIFT);
+	} else {
+		return rcc_uart_i2c_clksel_freq_hz(rcc_apb1_frequency, RCC_CCIPR_USART2SEL_SHIFT);
+	}
+}
+
+/*---------------------------------------------------------------------------*/
+/** @brief Get the peripheral clock speed for the Timer at base specified.
+ * @param timer  Base address of TIM to get clock frequency for.
+ */
+uint32_t rcc_get_timer_clk_freq(uint32_t timer)
+{
+	/* Handle APB1 timers, and apply multiplier if necessary. */
+	if (timer >= TIM2_BASE && timer <= TIM7_BASE) {
+		uint8_t ppre1 = (RCC_CFGR >> RCC_CFGR_PPRE1_SHIFT) & RCC_CFGR_PPRE1_MASK;
+		return (ppre1 == RCC_CFGR_PPRE1_NODIV) ? rcc_apb1_frequency
+			: 2 * rcc_apb1_frequency;
+	} else {
+		uint8_t ppre2 = (RCC_CFGR >> RCC_CFGR_PPRE2_SHIFT) & RCC_CFGR_PPRE2_MASK;
+		return (ppre2 == RCC_CFGR_PPRE2_NODIV) ? rcc_apb2_frequency
+			: 2 * rcc_apb2_frequency;
+	}
+
+}
+
+/*---------------------------------------------------------------------------*/
+/** @brief Get the peripheral clock speed for the I2C device at base specified.
+ * @param i2c  Base address of I2C to get clock frequency for.
+ */
+uint32_t rcc_get_i2c_clk_freq(uint32_t i2c)
+{
+	if (i2c ==  I2C1_BASE) {
+		return rcc_uart_i2c_clksel_freq_hz(rcc_apb1_frequency, RCC_CCIPR_I2C1SEL_SHIFT);
+	} else if (i2c == I2C3_BASE) {
+			return rcc_uart_i2c_clksel_freq_hz(rcc_apb1_frequency, RCC_CCIPR_I2C3SEL_SHIFT);
+	} else {
+		return rcc_apb1_frequency;
+	}
+}
+
+/*---------------------------------------------------------------------------*/
+/** @brief Get the peripheral clock speed for the SPI device at base specified.
+ * @param spi  Base address of SPI device to get clock frequency for (e.g. SPI1_BASE).
+ */
+uint32_t rcc_get_spi_clk_freq(uint32_t spi) {
+	if (spi == SPI1_BASE) {
+		return rcc_apb2_frequency;
+	} else {
+		return rcc_apb1_frequency;
+	}
 }
 
 /** @brief RCC Setup PLL and use it as Sysclk source.

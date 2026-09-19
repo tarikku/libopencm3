@@ -52,7 +52,6 @@
  *
  * @param[in] value uint32_t. 24 bit reload value.
  */
-
 void systick_set_reload(uint32_t value)
 {
 	STK_RVR = (value & STK_RVR_RELOAD);
@@ -91,7 +90,11 @@ bool systick_set_frequency(uint32_t freq, uint32_t ahb)
 		return false;
 	} else if (ratio >= STK_RVR_RELOAD) {
 		ratio /= 8;
+#if !defined(__ARM_ARCH_8M_MAIN__)
 		systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
+#else
+		systick_set_clocksource(STK_CSR_CLKSOURCE_EXT);
+#endif
 	} else {
 		systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
 	}
@@ -121,8 +124,7 @@ uint32_t systick_get_value(void)
 
 void systick_set_clocksource(uint8_t clocksource)
 {
-	STK_CSR = (STK_CSR & ~STK_CSR_CLKSOURCE) |
-		  (clocksource & STK_CSR_CLKSOURCE);
+	STK_CSR = (STK_CSR & ~STK_CSR_CLKSOURCE) | (clocksource & STK_CSR_CLKSOURCE);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -199,5 +201,5 @@ uint32_t systick_get_calib(void)
 {
 	return STK_CALIB & STK_CALIB_TENMS;
 }
-/**@}*/
 
+/**@}*/

@@ -44,14 +44,20 @@ Output Compare mode to PWM and enable the output of channel 1. Note that for
 the advanced timers the break functionality must be enabled before the signal
 will appear at the output, even though break is not being used. This is in
 addition to the normal output enable. Enable the alternate function clock (APB2
-only) and port A clock. Set ports A8 and A9 (timer 1 channel 1 compare outputs)
-to alternate function push-pull outputs where the PWM output will appear.
+only) and port A clock. Set port A8 (timer 1 channel 1 compare output) to
+alternate function push-pull output where the PWM output will appear.
 
 @code
-	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_TIM1);
-	gpio_set_output_options(GPIOA, GPIO_OTYPE_PP,
-				GPIO_OSPEED_50MHZ, GPIO8 | GPIO9);
+	rcc_periph_clock_enable(RCC_GPIOA);
+
+	// for F1....
+	rcc_periph_clock_enable(RCC_AFIO);
+	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO8);
+	// For anyone else
+	gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO8);
+	// End of family specific
+
 	rcc_periph_clock_enable(RCC_TIM1);
 	timer_set_mode(TIM1, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1,
 		       TIM_CR1_DIR_UP);
@@ -824,6 +830,142 @@ void timer_set_oc_slow_mode(uint32_t timer_peripheral, enum tim_oc_id oc_id)
 	}
 }
 
+void timer_set_oc1_mode(uint32_t timer_peripheral, enum tim_oc_mode oc_mode)
+{
+	TIM_CCMR1(timer_peripheral) &= ~TIM_CCMR1_CC1S_MASK;
+	TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_CC1S_OUT;
+	TIM_CCMR1(timer_peripheral) &= ~TIM_CCMR1_OC1M_MASK;
+	switch (oc_mode) {
+	case TIM_OCM_FROZEN:
+		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC1M_FROZEN;
+		break;
+	case TIM_OCM_ACTIVE:
+		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC1M_ACTIVE;
+		break;
+	case TIM_OCM_INACTIVE:
+		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC1M_INACTIVE;
+		break;
+	case TIM_OCM_TOGGLE:
+		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC1M_TOGGLE;
+		break;
+	case TIM_OCM_FORCE_LOW:
+		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC1M_FORCE_LOW;
+		break;
+	case TIM_OCM_FORCE_HIGH:
+		TIM_CCMR1(timer_peripheral) |=
+			TIM_CCMR1_OC1M_FORCE_HIGH;
+		break;
+	case TIM_OCM_PWM1:
+		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC1M_PWM1;
+		break;
+	case TIM_OCM_PWM2:
+		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC1M_PWM2;
+		break;
+	}
+}
+
+void timer_set_oc2_mode(uint32_t timer_peripheral, enum tim_oc_mode oc_mode)
+{
+	TIM_CCMR1(timer_peripheral) &= ~TIM_CCMR1_CC2S_MASK;
+	TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_CC2S_OUT;
+	TIM_CCMR1(timer_peripheral) &= ~TIM_CCMR1_OC2M_MASK;
+	switch (oc_mode) {
+	case TIM_OCM_FROZEN:
+		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC2M_FROZEN;
+		break;
+	case TIM_OCM_ACTIVE:
+		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC2M_ACTIVE;
+		break;
+	case TIM_OCM_INACTIVE:
+		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC2M_INACTIVE;
+		break;
+	case TIM_OCM_TOGGLE:
+		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC2M_TOGGLE;
+		break;
+	case TIM_OCM_FORCE_LOW:
+		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC2M_FORCE_LOW;
+		break;
+	case TIM_OCM_FORCE_HIGH:
+		TIM_CCMR1(timer_peripheral) |=
+			TIM_CCMR1_OC2M_FORCE_HIGH;
+		break;
+	case TIM_OCM_PWM1:
+		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC2M_PWM1;
+		break;
+	case TIM_OCM_PWM2:
+		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC2M_PWM2;
+		break;
+	}
+}
+
+void timer_set_oc3_mode(uint32_t timer_peripheral, enum tim_oc_mode oc_mode)
+{
+	TIM_CCMR2(timer_peripheral) &= ~TIM_CCMR2_CC3S_MASK;
+	TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_CC3S_OUT;
+	TIM_CCMR2(timer_peripheral) &= ~TIM_CCMR2_OC3M_MASK;
+	switch (oc_mode) {
+	case TIM_OCM_FROZEN:
+		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC3M_FROZEN;
+		break;
+	case TIM_OCM_ACTIVE:
+		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC3M_ACTIVE;
+		break;
+	case TIM_OCM_INACTIVE:
+		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC3M_INACTIVE;
+		break;
+	case TIM_OCM_TOGGLE:
+		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC3M_TOGGLE;
+		break;
+	case TIM_OCM_FORCE_LOW:
+		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC3M_FORCE_LOW;
+		break;
+	case TIM_OCM_FORCE_HIGH:
+		TIM_CCMR2(timer_peripheral) |=
+			TIM_CCMR2_OC3M_FORCE_HIGH;
+		break;
+	case TIM_OCM_PWM1:
+		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC3M_PWM1;
+		break;
+	case TIM_OCM_PWM2:
+		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC3M_PWM2;
+		break;
+	}
+}
+
+void timer_set_oc4_mode(uint32_t timer_peripheral, enum tim_oc_mode oc_mode)
+{
+	TIM_CCMR2(timer_peripheral) &= ~TIM_CCMR2_CC4S_MASK;
+	TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_CC4S_OUT;
+	TIM_CCMR2(timer_peripheral) &= ~TIM_CCMR2_OC4M_MASK;
+	switch (oc_mode) {
+	case TIM_OCM_FROZEN:
+		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC4M_FROZEN;
+		break;
+	case TIM_OCM_ACTIVE:
+		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC4M_ACTIVE;
+		break;
+	case TIM_OCM_INACTIVE:
+		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC4M_INACTIVE;
+		break;
+	case TIM_OCM_TOGGLE:
+		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC4M_TOGGLE;
+		break;
+	case TIM_OCM_FORCE_LOW:
+		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC4M_FORCE_LOW;
+		break;
+	case TIM_OCM_FORCE_HIGH:
+		TIM_CCMR2(timer_peripheral) |=
+			TIM_CCMR2_OC4M_FORCE_HIGH;
+		break;
+	case TIM_OCM_PWM1:
+		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC4M_PWM1;
+		break;
+	case TIM_OCM_PWM2:
+		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC4M_PWM2;
+		break;
+	}
+}
+
 /*---------------------------------------------------------------------------*/
 /** @brief Timer Set Output Compare Mode
 
@@ -856,132 +998,16 @@ void timer_set_oc_mode(uint32_t timer_peripheral, enum tim_oc_id oc_id,
 {
 	switch (oc_id) {
 	case TIM_OC1:
-		TIM_CCMR1(timer_peripheral) &= ~TIM_CCMR1_CC1S_MASK;
-		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_CC1S_OUT;
-		TIM_CCMR1(timer_peripheral) &= ~TIM_CCMR1_OC1M_MASK;
-		switch (oc_mode) {
-		case TIM_OCM_FROZEN:
-			TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC1M_FROZEN;
-			break;
-		case TIM_OCM_ACTIVE:
-			TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC1M_ACTIVE;
-			break;
-		case TIM_OCM_INACTIVE:
-			TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC1M_INACTIVE;
-			break;
-		case TIM_OCM_TOGGLE:
-			TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC1M_TOGGLE;
-			break;
-		case TIM_OCM_FORCE_LOW:
-			TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC1M_FORCE_LOW;
-			break;
-		case TIM_OCM_FORCE_HIGH:
-			TIM_CCMR1(timer_peripheral) |=
-			    TIM_CCMR1_OC1M_FORCE_HIGH;
-			break;
-		case TIM_OCM_PWM1:
-			TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC1M_PWM1;
-			break;
-		case TIM_OCM_PWM2:
-			TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC1M_PWM2;
-			break;
-		}
+		timer_set_oc1_mode(timer_peripheral, oc_mode);
 		break;
 	case TIM_OC2:
-		TIM_CCMR1(timer_peripheral) &= ~TIM_CCMR1_CC2S_MASK;
-		TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_CC2S_OUT;
-		TIM_CCMR1(timer_peripheral) &= ~TIM_CCMR1_OC2M_MASK;
-		switch (oc_mode) {
-		case TIM_OCM_FROZEN:
-			TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC2M_FROZEN;
-			break;
-		case TIM_OCM_ACTIVE:
-			TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC2M_ACTIVE;
-			break;
-		case TIM_OCM_INACTIVE:
-			TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC2M_INACTIVE;
-			break;
-		case TIM_OCM_TOGGLE:
-			TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC2M_TOGGLE;
-			break;
-		case TIM_OCM_FORCE_LOW:
-			TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC2M_FORCE_LOW;
-			break;
-		case TIM_OCM_FORCE_HIGH:
-			TIM_CCMR1(timer_peripheral) |=
-			    TIM_CCMR1_OC2M_FORCE_HIGH;
-			break;
-		case TIM_OCM_PWM1:
-			TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC2M_PWM1;
-			break;
-		case TIM_OCM_PWM2:
-			TIM_CCMR1(timer_peripheral) |= TIM_CCMR1_OC2M_PWM2;
-			break;
-		}
+		timer_set_oc2_mode(timer_peripheral, oc_mode);
 		break;
 	case TIM_OC3:
-		TIM_CCMR2(timer_peripheral) &= ~TIM_CCMR2_CC3S_MASK;
-		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_CC3S_OUT;
-		TIM_CCMR2(timer_peripheral) &= ~TIM_CCMR2_OC3M_MASK;
-		switch (oc_mode) {
-		case TIM_OCM_FROZEN:
-			TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC3M_FROZEN;
-			break;
-		case TIM_OCM_ACTIVE:
-			TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC3M_ACTIVE;
-			break;
-		case TIM_OCM_INACTIVE:
-			TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC3M_INACTIVE;
-			break;
-		case TIM_OCM_TOGGLE:
-			TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC3M_TOGGLE;
-			break;
-		case TIM_OCM_FORCE_LOW:
-			TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC3M_FORCE_LOW;
-			break;
-		case TIM_OCM_FORCE_HIGH:
-			TIM_CCMR2(timer_peripheral) |=
-			    TIM_CCMR2_OC3M_FORCE_HIGH;
-			break;
-		case TIM_OCM_PWM1:
-			TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC3M_PWM1;
-			break;
-		case TIM_OCM_PWM2:
-			TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC3M_PWM2;
-			break;
-		}
+		timer_set_oc3_mode(timer_peripheral, oc_mode);
 		break;
 	case TIM_OC4:
-		TIM_CCMR2(timer_peripheral) &= ~TIM_CCMR2_CC4S_MASK;
-		TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_CC4S_OUT;
-		TIM_CCMR2(timer_peripheral) &= ~TIM_CCMR2_OC4M_MASK;
-		switch (oc_mode) {
-		case TIM_OCM_FROZEN:
-			TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC4M_FROZEN;
-			break;
-		case TIM_OCM_ACTIVE:
-			TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC4M_ACTIVE;
-			break;
-		case TIM_OCM_INACTIVE:
-			TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC4M_INACTIVE;
-			break;
-		case TIM_OCM_TOGGLE:
-			TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC4M_TOGGLE;
-			break;
-		case TIM_OCM_FORCE_LOW:
-			TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC4M_FORCE_LOW;
-			break;
-		case TIM_OCM_FORCE_HIGH:
-			TIM_CCMR2(timer_peripheral) |=
-			    TIM_CCMR2_OC4M_FORCE_HIGH;
-			break;
-		case TIM_OCM_PWM1:
-			TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC4M_PWM1;
-			break;
-		case TIM_OCM_PWM2:
-			TIM_CCMR2(timer_peripheral) |= TIM_CCMR2_OC4M_PWM2;
-			break;
-		}
+		timer_set_oc4_mode(timer_peripheral, oc_mode);
 		break;
 	case TIM_OC1N:
 	case TIM_OC2N:
@@ -1341,7 +1367,7 @@ Enables the output in the Break feature of an advanced timer. This does not
 enable the break functionality itself but only sets the Master Output Enable in
 the Break and Deadtime Register.
 
-@note This setting is only valid for the advanced timers.
+@note Not all timers support Break/Deadtime features
 
 @note It is necessary to call this function to enable the output on an advanced
 timer <b>even if break or deadtime features are not being used</b>.
@@ -1361,7 +1387,7 @@ void timer_enable_break_main_output(uint32_t timer_peripheral)
 Disables the output in the Break feature of an advanced timer. This clears
 the Master Output Enable in the Break and Deadtime Register.
 
-@note This setting is only valid for the advanced timers.
+@note Not all timers support Break/Deadtime features
 
 @param[in] timer_peripheral Unsigned int32. Timer register address base TIM1 or
 TIM8
@@ -1379,7 +1405,7 @@ Enables the automatic output feature of the Break function of an advanced
 timer so that the output is re-enabled at the next update event following a
 break event.
 
-@note This setting is only valid for the advanced timers.
+@note Not all timers support Break/Deadtime features
 
 @param[in] timer_peripheral Unsigned int32. Timer register address base TIM1 or
 TIM8
@@ -1397,7 +1423,7 @@ Disables the automatic output feature of the Break function of an advanced
 timer so that the output is re-enabled at the next update event following a
 break event.
 
-@note This setting is only valid for the advanced timers.
+@note Not all timers support Break/Deadtime features
 
 @param[in] timer_peripheral Unsigned int32. Timer register address base TIM1 or
 TIM8
@@ -1413,7 +1439,7 @@ void timer_disable_break_automatic_output(uint32_t timer_peripheral)
 
 Sets the break function to activate when the break input becomes high.
 
-@note This setting is only valid for the advanced timers.
+@note Not all timers support Break/Deadtime features
 
 @param[in] timer_peripheral Unsigned int32. Timer register address base TIM1 or
 TIM8
@@ -1429,7 +1455,7 @@ void timer_set_break_polarity_high(uint32_t timer_peripheral)
 
 Sets the break function to activate when the break input becomes low.
 
-@note This setting is only valid for the advanced timers.
+@note Not all timers support Break/Deadtime features
 
 @param[in] timer_peripheral Unsigned int32. Timer register address base TIM1 or
 TIM8
@@ -1445,7 +1471,7 @@ void timer_set_break_polarity_low(uint32_t timer_peripheral)
 
 Enables the break function of an advanced timer.
 
-@note This setting is only valid for the advanced timers.
+@note Not all timers support Break/Deadtime features
 
 @param[in] timer_peripheral Unsigned int32. Timer register address base TIM1 or
 TIM8
@@ -1461,7 +1487,7 @@ void timer_enable_break(uint32_t timer_peripheral)
 
 Disables the break function of an advanced timer.
 
-@note This setting is only valid for the advanced timers.
+@note Not all timers support Break/Deadtime features
 
 @param[in] timer_peripheral Unsigned int32. Timer register address base TIM1 or
 TIM8
@@ -1481,7 +1507,7 @@ if no complementary output is present. When the capture-compare output is
 disabled while the complementary output is enabled, the output is set to its
 inactive level as defined by the output polarity.
 
-@note This setting is only valid for the advanced timers.
+@note Not all timers support Break/Deadtime features
 
 @param[in] timer_peripheral Unsigned int32. Timer register address base TIM1 or
 TIM8
@@ -1500,7 +1526,7 @@ timer in which the complementary outputs have been configured. It has no effect
 if no complementary output is present. When the capture-compare output is
 disabled, the output is also disabled.
 
-@note This setting is only valid for the advanced timers.
+@note Not all timers support Break/Deadtime features
 
 @param[in] timer_peripheral Unsigned int32. Timer register address base TIM1 or
 TIM8
@@ -1518,7 +1544,7 @@ Enables the off-state in idle mode for the break function of an advanced
 timer. When the master output is disabled the output is set to its
 inactive level as defined by the output polarity.
 
-@note This setting is only valid for the advanced timers.
+@note Not all timers support Break/Deadtime features
 
 @param[in] timer_peripheral Unsigned int32. Timer register address base TIM1 or
 TIM8
@@ -1535,7 +1561,7 @@ void timer_set_enabled_off_state_in_idle_mode(uint32_t timer_peripheral)
 Disables the off-state in idle mode for the break function of an advanced
 timer. When the master output is disabled the output is also disabled.
 
-@note This setting is only valid for the advanced timers.
+@note Not all timers support Break/Deadtime features
 
 @param[in] timer_peripheral Unsigned int32. Timer register address base TIM1 or
 TIM8
@@ -1553,7 +1579,7 @@ Set the lock bits for an advanced timer. Three levels of lock providing
 protection against software errors. Once written they cannot be changed until a
 timer reset has occurred.
 
-@note This setting is only valid for the advanced timers.
+@note Not all timers support Break/Deadtime features
 
 @param[in] timer_peripheral Unsigned int32. Timer register address base TIM1 or
 TIM8
@@ -1577,7 +1603,7 @@ terms of the number of DTSC cycles:
 @li Bits 7:5 = 110, deadtime = 8x(32+bits(5:0))
 @li Bits 7:5 = 111, deadtime = 16x(32+bits(5:0))
 
-@note This setting is only valid for the advanced timers.
+@note Not all timers support Break/Deadtime features
 
 @param[in] timer_peripheral Unsigned int32. Timer register address base TIM1 or
 TIM8
@@ -1730,12 +1756,12 @@ internal trigger input selected through TS bit
 void timer_ic_set_input(uint32_t timer_peripheral, enum tim_ic_id ic,
 			enum tim_ic_input in)
 {
-	in &= 3;
+	in &= 3U;
 
 	if (((ic == TIM_IC2) || (ic == TIM_IC4)) &&
 	    ((in == TIM_IC_IN_TI1) || (in == TIM_IC_IN_TI2))) {
 		/* Input select bits are flipped for these combinations */
-		in ^= 3;
+		in ^= 3U;
 	}
 
 	switch (ic) {
@@ -1745,7 +1771,7 @@ void timer_ic_set_input(uint32_t timer_peripheral, enum tim_ic_id ic,
 		break;
 	case TIM_IC2:
 		TIM_CCMR1(timer_peripheral) &= ~TIM_CCMR1_CC2S_MASK;
-		TIM_CCMR1(timer_peripheral) |= in << 8;
+		TIM_CCMR1(timer_peripheral) |= in << 8U;
 		break;
 	case TIM_IC3:
 		TIM_CCMR2(timer_peripheral) &= ~TIM_CCMR2_CC3S_MASK;
@@ -1753,7 +1779,7 @@ void timer_ic_set_input(uint32_t timer_peripheral, enum tim_ic_id ic,
 		break;
 	case TIM_IC4:
 		TIM_CCMR2(timer_peripheral) &= ~TIM_CCMR2_CC4S_MASK;
-		TIM_CCMR2(timer_peripheral) |= in << 8;
+		TIM_CCMR2(timer_peripheral) |= in << 8U;
 		break;
 	}
 }
@@ -1858,7 +1884,23 @@ void timer_slave_set_trigger(uint32_t timer_peripheral, uint8_t trigger)
 	TIM_SMCR(timer_peripheral) |= trigger;
 }
 
+/*---------------------------------------------------------------------------*/
+/** @brief Set External Clock Mode 2
+
+@param[in] timer_peripheral Unsigned int32. Timer register address base
+@param[in] state ::tim_ecm2_state. External Clock Mode 2 state
+*/
+
+void timer_slave_set_extclockmode2(uint32_t timer_peripheral,
+            enum tim_ecm2_state state)
+{
+	if (state) {
+		TIM_SMCR(timer_peripheral) |= TIM_SMCR_ECE;
+	} else {
+		TIM_SMCR(timer_peripheral) &= ~TIM_SMCR_ECE;
+	}
+}
+
 /* TODO Timer DMA burst */
 
 /**@}*/
-

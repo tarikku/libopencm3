@@ -477,20 +477,20 @@ adc_set_injected_offset.
 
 @param[in] adc Unsigned int32. ADC block register address base @ref adc_reg_base
 @param[in] reg Unsigned int8. Register number (1 ... 4).
-@returns Unsigned int32 conversion result.
+@returns Signed int32 conversion result.
 */
 
-uint32_t adc_read_injected(uint32_t adc, uint8_t reg)
+int32_t adc_read_injected(uint32_t adc, uint8_t reg)
 {
 	switch (reg) {
 	case 1:
-		return ADC_JDR1(adc);
+		return (int16_t)ADC_JDR1(adc);
 	case 2:
-		return ADC_JDR2(adc);
+		return (int16_t)ADC_JDR2(adc);
 	case 3:
-		return ADC_JDR3(adc);
+		return (int16_t)ADC_JDR3(adc);
 	case 4:
-		return ADC_JDR4(adc);
+		return (int16_t)ADC_JDR4(adc);
 	}
 	return 0;
 }
@@ -588,16 +588,16 @@ void adc_set_regular_sequence(uint32_t adc, uint8_t length, uint8_t channel[])
 		if (i <= 6) {
 			first6 |= (channel[i - 1] << ((i - 1) * 5));
 		}
-		if ((i > 6) & (i <= 12)) {
+		if ((i > 6) && (i <= 12)) {
 			second6 |= (channel[i - 1] << ((i - 6 - 1) * 5));
 		}
-		if ((i > 12) & (i <= 18)) {
+		if ((i > 12) && (i <= 18)) {
 			third6 |= (channel[i - 1] << ((i - 12 - 1) * 5));
 		}
-		if ((i > 18) & (i <= 24)) {
+		if ((i > 18) && (i <= 24)) {
 			fourth6 |= (channel[i - 1] << ((i - 18 - 1) * 5));
 		}
-		if ((i > 24) & (i <= 28)) {
+		if ((i > 24) && (i <= 28)) {
 			fifth6 |= (channel[i - 1] << ((i - 24 - 1) * 5));
 		}
 	}

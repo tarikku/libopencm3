@@ -27,12 +27,7 @@
 The order of header inclusion is important. crc.h includes the device
 specific memorymap.h header before including this header file.*/
 
-/** @cond */
-#ifdef LIBOPENCM3_CRC_H
-/** @endcond */
-#ifndef LIBOPENCM3_CRC_COMMON_ALL_H
-#define LIBOPENCM3_CRC_COMMON_ALL_H
-
+#pragma once
 /**@{*/
 
 /*****************************************************************************/
@@ -53,7 +48,7 @@ specific memorymap.h header before including this header file.*/
 
 /** CRC_CR Control register */
 #define CRC_CR				MMIO32(CRC_BASE + 0x08)
-/*@}*/
+/**@}*/
 
 /*****************************************************************************/
 /* Register values                                                           */
@@ -76,17 +71,8 @@ specific memorymap.h header before including this header file.*/
 #define CRC_CR_RESET			(1 << 0)
 /**@}*/
 
-/*****************************************************************************/
-/* API definitions                                                           */
-/*****************************************************************************/
-
-/*****************************************************************************/
-/* API Functions                                                             */
-/*****************************************************************************/
-
 BEGIN_DECLS
 
-/* TODO */
 
 /**
  * Reset the CRC calculator to initial values.
@@ -94,16 +80,20 @@ BEGIN_DECLS
 void crc_reset(void);
 
 /**
- * Add a word to the CRC calculator and return the result.
- * @param data new word to add to the CRC calculator
- * @return final CRC calculator value
+ * Writes a data word to the register, the write operation stalling until
+ * the computation is complete.
+ * @param[in] data new word to add to the CRC calculator
+ * @returns int32 Computed CRC result
  */
 uint32_t crc_calculate(uint32_t data);
 
 /**
- * Add a block of data to the CRC calculator and return the final result
- * @param datap pointer to the start of a block of 32bit data words
- * @param size length of data, in 32bit increments
+ * Add a block of data to the CRC calculator and return the final result.
+ * Writes data words consecutively to the register, the write operation
+ * stalling until the computation of each word is complete, then
+ * returns the final result
+ * @param[in] datap pointer to an array of 32 bit data words.
+ * @param[in] size length of data, in 32bit increments
  * @return final CRC calculator value
  */
 uint32_t crc_calculate_block(uint32_t *datap, int size);
@@ -111,11 +101,3 @@ uint32_t crc_calculate_block(uint32_t *datap, int size);
 END_DECLS
 
 /**@}*/
-
-#endif
-/** @cond */
-#else
-#warning "crc_common_all.h should not be included explicitly, only via crc.h"
-#endif
-/** @endcond */
-
